@@ -8,7 +8,6 @@ import { format } from 'date-fns'
 import { CalendarIcon, Trash2, FileText } from 'lucide-react'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
-import { Label } from '~/components/ui/label'
 import { Textarea } from '~/components/ui/textarea'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { PageContainer } from '~/components/layouts/page-container'
@@ -35,6 +34,7 @@ import { cn } from '~/lib/utils'
 import { invoiceSchema } from '~/lib/schemas'
 import { TemplateSelector } from '~/components/pdf-templates/template-selector'
 import { PDFPreview } from '~/components/pdf-templates/pdf-preview'
+import { getCurrencyOptions } from '~/lib/currency'
 
 
 interface Client {
@@ -62,6 +62,7 @@ export default function NewInvoicePage() {
       items: [{ description: '', quantity: 1, unitPrice: 0 }],
       notes: '',
       taxRate: 10,
+      currency: 'USD', // Default currency, will be updated when company data loads
     },
   })
 
@@ -92,6 +93,10 @@ export default function NewInvoicePage() {
         if (companyResponse.ok) {
           const companyData = await companyResponse.json()
           setCompany(companyData)
+          // Set default currency from company settings
+          if (companyData.defaultCurrency) {
+            form.setValue('currency', companyData.defaultCurrency)
+          }
         } else {
           console.error('Failed to fetch company data')
         }
@@ -311,26 +316,53 @@ export default function NewInvoicePage() {
                     />
                   </div>
 
-                  <FormField
-                    control={form.control}
-                    name="taxRate"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Tax Rate (%)</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            max="100"
-                            {...field}
-                            onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="taxRate"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Tax Rate (%)</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              max="100"
+                              {...field}
+                              onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="currency"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Currency</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select currency" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {getCurrencyOptions().map((option) => (
+                                <SelectItem key={option.value} value={option.value}>
+                                  {option.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                 </CardContent>
               </Card>
 
@@ -496,6 +528,7 @@ export default function NewInvoicePage() {
                   number: 'INV-NEW',
                   issueDate: watchedValues.issueDate || new Date(),
                   dueDate: watchedValues.dueDate || new Date(),
+                  currency: watchedValues.currency || 'USD',
                   company: company || {
                     name: '[Company Name]',
                     email: '[Company Email]',

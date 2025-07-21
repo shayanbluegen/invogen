@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCurrentUser } from '~/lib/auth'
 import { prisma } from '~/lib/prisma'
+import { validateCurrencyCode } from '~/lib/currency'
 
 export async function GET() {
   try {
@@ -35,7 +36,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { name, email, phone, address, website } = body
+    const { name, email, phone, address, website, defaultCurrency } = body
 
     // Validation
     if (!name || typeof name !== 'string' || name.trim().length === 0) {
@@ -73,6 +74,14 @@ export async function PUT(request: NextRequest) {
       }
     }
 
+    // Validate currency code
+    if (defaultCurrency && !validateCurrencyCode(defaultCurrency)) {
+      return NextResponse.json(
+        { error: 'Invalid currency code' },
+        { status: 400 }
+      )
+    }
+
     const company = await prisma.company.upsert({
       where: { userId: user.id },
       update: {
@@ -81,6 +90,7 @@ export async function PUT(request: NextRequest) {
         phone: phone && phone.trim() ? phone.trim() : null,
         address: address && address.trim() ? address.trim() : null,
         website: website && website.trim() ? website.trim() : null,
+        defaultCurrency: defaultCurrency || 'USD',
       },
       create: {
         name: name.trim(),
@@ -88,6 +98,7 @@ export async function PUT(request: NextRequest) {
         phone: phone && phone.trim() ? phone.trim() : null,
         address: address && address.trim() ? address.trim() : null,
         website: website && website.trim() ? website.trim() : null,
+        defaultCurrency: defaultCurrency || 'USD',
         userId: user.id,
       },
     })

@@ -3,6 +3,7 @@ import { Document, Page, StyleSheet, View, Text, Line, Svg } from '@react-pdf/re
 import { format } from 'date-fns';
 import { InvoiceData } from '~/lib/types';
 import { PDFTemplate, registerTemplate } from '../template-registry';
+import { formatCurrency as formatCurrencyUtil } from '~/lib/currency';
 
 interface CorporateExecutiveTemplateProps {
   invoice: InvoiceData;
@@ -22,12 +23,9 @@ const CorporateExecutiveTemplate: React.FC<CorporateExecutiveTemplateProps> = ({
   const formatCurrency = (amount: number) => {
     const safeAmount = Number(amount) || 0;
     if (isNaN(safeAmount)) {
-      return '$0.00';
+      return formatCurrencyUtil(0, invoice.currency || 'USD');
     }
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(safeAmount);
+    return formatCurrencyUtil(safeAmount, invoice.currency || 'USD');
   };
 
   return (

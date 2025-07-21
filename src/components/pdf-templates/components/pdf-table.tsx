@@ -1,6 +1,7 @@
 import React from 'react';
 import { Text, View, StyleSheet } from '@react-pdf/renderer';
 import { InvoiceData } from '~/lib/types';
+import { formatCurrency as formatCurrencyUtil } from '~/lib/currency';
 
 interface PDFTableProps {
   invoice: InvoiceData;
@@ -17,12 +18,9 @@ export const PDFTable: React.FC<PDFTableProps> = ({ invoice, colors }) => {
   const formatCurrency = (amount: number) => {
     const safeAmount = Number(amount) || 0;
     if (isNaN(safeAmount)) {
-      return '$0.00';
+      return formatCurrencyUtil(0, invoice.currency || 'USD');
     }
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(safeAmount);
+    return formatCurrencyUtil(safeAmount, invoice.currency || 'USD');
   };
 
   return (

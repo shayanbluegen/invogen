@@ -5,6 +5,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { MoreHorizontal, Mail, Phone } from 'lucide-react'
 import { StatusBadge } from '~/components/ui/status-badge'
 import { cn } from '~/lib/utils'
+import { formatCurrency } from '~/lib/currency'
 
 interface NameCellProps {
   name: string
@@ -75,10 +76,10 @@ interface AmountCellProps {
   className?: string
 }
 
-export function AmountCell({ amount, currency = '$', className }: AmountCellProps) {
+export function AmountCell({ amount, currency = 'USD', className }: AmountCellProps) {
   return (
     <TableCell className={cn('text-right font-medium', className)}>
-      {currency}{amount.toLocaleString()}
+      {formatCurrency(amount, currency)}
     </TableCell>
   )
 }

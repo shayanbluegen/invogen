@@ -57,6 +57,7 @@ interface Invoice {
   }
   status: string
   total: number
+  currency: string
   dueDate: string
   issueDate: string
   createdAt: string
@@ -219,7 +220,7 @@ export default function InvoicesPage() {
               />
               <StatusCell status={invoice.status} variant="invoice" />
               <DateCell date={invoice.dueDate} />
-              <AmountCell amount={invoice.total} />
+              <AmountCell amount={invoice.total} currency={invoice.currency} />
               <ActionsCell
                 actions={[
                   {

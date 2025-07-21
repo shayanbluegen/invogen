@@ -62,6 +62,7 @@ interface DashboardData {
     }
     status: string
     total: number
+    currency: string
     dueDate: string
     createdAt: string
   }>
@@ -184,7 +185,7 @@ export default function DashboardPage() {
               />
               <StatusCell status={invoice.status} variant="invoice" />
               <DateCell date={invoice.createdAt} />
-              <AmountCell amount={invoice.total} />
+              <AmountCell amount={invoice.total} currency={invoice.currency} />
               <ActionsCell
                 actions={[
                   {

@@ -142,6 +142,7 @@ export async function GET() {
         },
         status: invoice.status,
         total: Number(invoice.total) || 0,
+        currency: invoice.currency || 'USD',
         dueDate: invoice.dueDate?.toISOString() || new Date().toISOString(),
         createdAt: invoice.createdAt?.toISOString() || new Date().toISOString(),
       })),

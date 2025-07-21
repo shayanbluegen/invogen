@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { Building2, AlertCircle, CheckCircle2 } from 'lucide-react'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
@@ -22,29 +21,15 @@ import {
   FormLabel,
   FormMessage,
 } from '~/components/ui/form'
-
-const companySchema = z.object({
-  name: z.string().min(1, 'Company name is required').max(100, 'Company name must be less than 100 characters'),
-  email: z.string().email('Please enter a valid email address').optional().or(z.literal('')),
-  phone: z.string().optional().refine((val) => {
-    if (!val || val === '') return true
-    // Basic phone validation - allows various formats
-    const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/
-    return phoneRegex.test(val.replace(/[\s\-\(\)]/g, ''))
-  }, 'Please enter a valid phone number'),
-  address: z.string().max(500, 'Address must be less than 500 characters').optional(),
-  website: z.string().optional().refine((val) => {
-    if (!val || val === '') return true
-    try {
-      new URL(val)
-      return true
-    } catch {
-      return false
-    }
-  }, 'Please enter a valid website URL (e.g., https://example.com)'),
-})
-
-type CompanyFormData = z.infer<typeof companySchema>
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '~/components/ui/select'
+import { companySchema, type CompanyFormData } from '~/lib/schemas'
+import { getCurrencyOptions } from '~/lib/currency'
 
 interface Company {
   id: string
@@ -53,6 +38,7 @@ interface Company {
   phone: string | null
   address: string | null
   website: string | null
+  defaultCurrency: string
 }
 
 export default function CompanyPage() {
@@ -70,6 +56,7 @@ export default function CompanyPage() {
       phone: '',
       address: '',
       website: '',
+      defaultCurrency: 'USD',
     },
   })
 
@@ -89,6 +76,7 @@ export default function CompanyPage() {
           phone: companyData.phone || '',
           address: companyData.address || '',
           website: companyData.website || '',
+          defaultCurrency: companyData.defaultCurrency || 'USD',
         }
 
         // Populate form with company data
@@ -130,6 +118,7 @@ export default function CompanyPage() {
           phone: data.phone || null,
           address: data.address || null,
           website: data.website || null,
+          defaultCurrency: data.defaultCurrency,
         }),
       })
 
@@ -283,6 +272,31 @@ export default function CompanyPage() {
                           {...field}
                         />
                       </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="defaultCurrency"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Default Currency</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select default currency" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {getCurrencyOptions().map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}

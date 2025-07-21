@@ -27,12 +27,13 @@ model User {
 model Company {
   id String @id @default(cuid())
 
-  name    String
-  email   String?
-  phone   String?
-  address String?
-  logo    String?
-  website String?
+  name            String
+  email           String?
+  phone           String?
+  address         String?
+  logo            String?
+  website         String?
+  defaultCurrency String  @default("USD")
 
   userId String @unique
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -80,6 +81,7 @@ model Invoice {
   taxRate   Decimal       @default(0) @db.Decimal(5, 2)
   taxAmount Decimal       @default(0) @db.Decimal(10, 2)
   total     Decimal       @db.Decimal(10, 2)
+  currency  String        @default("USD")
   notes     String?
   theme     String        @default("modern-minimalist")
 

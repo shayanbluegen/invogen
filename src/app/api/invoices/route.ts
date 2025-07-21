@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCurrentUser } from '~/lib/auth'
 import { prisma } from '~/lib/prisma'
+import { validateCurrencyCode } from '~/lib/currency'
 
 export async function GET(request: NextRequest) {
   try {
@@ -64,6 +65,7 @@ export async function GET(request: NextRequest) {
         },
         status: invoice.status,
         total: Number(invoice.total),
+        currency: invoice.currency,
         dueDate: invoice.dueDate,
         issueDate: invoice.issueDate,
         createdAt: invoice.createdAt,
@@ -99,6 +101,7 @@ export async function POST(request: NextRequest) {
       items,
       notes,
       taxRate = 0,
+      currency = 'USD',
       templateId = 'modern-minimalist', // Default template if not provided
     } = body
 
@@ -106,6 +109,14 @@ export async function POST(request: NextRequest) {
     if (!clientId || !issueDate || !dueDate || !items || items.length === 0) {
       return NextResponse.json(
         { error: 'Missing required fields' },
+        { status: 400 }
+      )
+    }
+
+    // Validate currency code
+    if (currency && !validateCurrencyCode(currency)) {
+      return NextResponse.json(
+        { error: 'Invalid currency code' },
         { status: 400 }
       )
     }
@@ -152,6 +163,7 @@ export async function POST(request: NextRequest) {
         taxRate,
         taxAmount,
         total,
+        currency: currency || 'USD',
         notes,
         theme: templateId, // Save the selected template ID
         userId: user.id,
