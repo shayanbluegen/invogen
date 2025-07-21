@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import {
   Home,
   FileText,
@@ -20,18 +21,36 @@ const navigation = [
   { name: 'Company', href: '/dashboard/company', icon: Building2 },
 ]
 
-interface SidebarProps {
-  user: {
+interface User {
+  name: string
+  email: string
+  company?: {
     name: string
-    email: string
-    company?: {
-      name: string
-    } | null
-  }
+  } | null
 }
 
-export function Sidebar({ user }: SidebarProps) {
+export function Sidebar() {
   const pathname = usePathname()
+  const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await fetch('/api/auth/me')
+        if (response.ok) {
+          const userData = await response.json()
+          setUser(userData)
+        }
+      } catch (error) {
+        console.error('Error fetching user:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchUser()
+  }, [])
 
   const handleLogout = async () => {
     try {
@@ -76,10 +95,22 @@ export function Sidebar({ user }: SidebarProps) {
       
       <div className="p-4">
         <div className="mb-4">
-          <p className="text-sm font-medium">{user.name}</p>
-          <p className="text-xs text-muted-foreground">{user.email}</p>
-          {user.company && (
-            <p className="text-xs text-muted-foreground">{user.company.name}</p>
+          {loading ? (
+            <div className="animate-pulse">
+              <div className="h-4 bg-gray-200 rounded mb-2"></div>
+              <div className="h-3 bg-gray-200 rounded mb-1"></div>
+              <div className="h-3 bg-gray-200 rounded"></div>
+            </div>
+          ) : user ? (
+            <>
+              <p className="text-sm font-medium">{user.name}</p>
+              <p className="text-xs text-muted-foreground">{user.email}</p>
+              {user.company && (
+                <p className="text-xs text-muted-foreground">{user.company.name}</p>
+              )}
+            </>
+          ) : (
+            <p className="text-sm text-muted-foreground">Unable to load user</p>
           )}
         </div>
         
@@ -87,6 +118,7 @@ export function Sidebar({ user }: SidebarProps) {
           variant="ghost"
           className="w-full justify-start text-destructive hover:text-destructive"
           onClick={handleLogout}
+          disabled={loading}
         >
           <LogOut className="mr-3 h-4 w-4" />
           Logout
