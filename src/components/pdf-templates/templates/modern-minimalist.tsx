@@ -48,26 +48,16 @@ const ModernMinimalistTemplate: React.FC<ModernMinimalistTemplateProps> = ({ inv
             <View style={styles.fromSection}>
               <Text style={styles.sectionLabel}>From</Text>
               <Text style={styles.companyName}>{invoice.company.name}</Text>
-              {invoice.company.address && (
-                <Text style={styles.infoText}>{invoice.company.address}</Text>
-              )}
-              {invoice.company.email && (
-                <Text style={styles.infoText}>{invoice.company.email}</Text>
-              )}
-              {invoice.company.phone && (
-                <Text style={styles.infoText}>{invoice.company.phone}</Text>
-              )}
+              <Text style={styles.infoText}>{invoice.company.address}</Text>
+              <Text style={styles.infoText}>{invoice.company.email}</Text>
+              <Text style={styles.infoText}>{invoice.company.phone}</Text>
             </View>
 
             <View style={styles.toSection}>
               <Text style={styles.sectionLabel}>To</Text>
               <Text style={styles.clientName}>{invoice.client.name}</Text>
-              {invoice.client.address && (
-                <Text style={styles.infoText}>{invoice.client.address}</Text>
-              )}
-              {invoice.client.email && (
-                <Text style={styles.infoText}>{invoice.client.email}</Text>
-              )}
+              <Text style={styles.infoText}>{invoice.client.address}</Text>
+              <Text style={styles.infoText}>{invoice.client.email}</Text>
             </View>
 
             <View style={styles.dateSection}>
@@ -91,20 +81,14 @@ const ModernMinimalistTemplate: React.FC<ModernMinimalistTemplateProps> = ({ inv
               <Text style={[styles.tableHeaderCell, styles.amountColumn]}>Amount</Text>
             </View>
 
-            {invoice.items && invoice.items.length > 0 ? (
-              invoice.items.map((item, index) => (
-                <View key={index} style={styles.tableRow}>
-                  <Text style={[styles.tableCell, styles.descriptionColumn]}>{item.description}</Text>
-                  <Text style={[styles.tableCell, styles.quantityColumn]}>{item.quantity}</Text>
-                  <Text style={[styles.tableCell, styles.priceColumn]}>{formatCurrency(item.unitPrice)}</Text>
-                  <Text style={[styles.tableCell, styles.amountColumn]}>{formatCurrency(item.amount)}</Text>
-                </View>
-              ))
-            ) : (
-              <View style={styles.tableRow}>
-                <Text style={[styles.tableCell, styles.fullWidth]}>No items</Text>
+            {invoice.items.map((item, index) => (
+              <View key={index} style={styles.tableRow}>
+                <Text style={[styles.tableCell, styles.descriptionColumn]}>{item.description}</Text>
+                <Text style={[styles.tableCell, styles.quantityColumn]}>{item.quantity}</Text>
+                <Text style={[styles.tableCell, styles.priceColumn]}>{formatCurrency(item.unitPrice)}</Text>
+                <Text style={[styles.tableCell, styles.amountColumn]}>{formatCurrency(item.amount)}</Text>
               </View>
-            )}
+            ))}
           </View>
 
           {/* Totals */}
@@ -115,12 +99,10 @@ const ModernMinimalistTemplate: React.FC<ModernMinimalistTemplateProps> = ({ inv
                 <Text style={styles.totalValue}>{formatCurrency(invoice.subtotal)}</Text>
               </View>
 
-              {(Number(invoice.taxRate) || 0) > 0 && (
-                <View style={styles.totalRow}>
-                  <Text style={styles.totalLabel}>Tax ({Number(invoice.taxRate) || 0}%)</Text>
-                  <Text style={styles.totalValue}>{formatCurrency(invoice.taxAmount)}</Text>
-                </View>
-              )}
+              <View style={styles.totalRow}>
+                <Text style={styles.totalLabel}>Tax ({invoice.taxRate}%)</Text>
+                <Text style={styles.totalValue}>{formatCurrency(invoice.taxAmount)}</Text>
+              </View>
 
               <View style={styles.totalDivider} />
               <View style={styles.grandTotalRow}>
@@ -131,12 +113,10 @@ const ModernMinimalistTemplate: React.FC<ModernMinimalistTemplateProps> = ({ inv
           </View>
 
           {/* Notes */}
-          {invoice.notes && (
             <View style={styles.notesSection}>
               <Text style={styles.notesLabel}>Notes</Text>
               <Text style={styles.notesText}>{invoice.notes}</Text>
             </View>
-          )}
         </View>
       </Page>
     </Document>

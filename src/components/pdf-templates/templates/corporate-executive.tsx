@@ -41,20 +41,12 @@ const CorporateExecutiveTemplate: React.FC<CorporateExecutiveTemplateProps> = ({
                 <View style={styles.headerLeft}>
                   <Text style={styles.companyName}>{invoice.company.name}</Text>
                   <View style={styles.companyDetails}>
-                    {invoice.company.address && (
-                      <Text style={styles.companyDetail}>{invoice.company.address}</Text>
-                    )}
+                    <Text style={styles.companyDetail}>{invoice.company.address}</Text>
                     <View style={styles.contactRow}>
-                      {invoice.company.email && (
-                        <Text style={styles.companyDetail}>{invoice.company.email}</Text>
-                      )}
-                      {invoice.company.phone && (
-                        <Text style={styles.companyDetail}> • {invoice.company.phone}</Text>
-                      )}
+                      <Text style={styles.companyDetail}>{invoice.company.email}</Text>
+                      <Text style={styles.companyDetail}> • {invoice.company.phone}</Text>
                     </View>
-                    {invoice.company.website && (
-                      <Text style={styles.companyDetail}>{invoice.company.website}</Text>
-                    )}
+                    <Text style={styles.companyDetail}>{invoice.company.website}</Text>
                   </View>
                 </View>
                 <View style={styles.headerRight}>
@@ -71,12 +63,8 @@ const CorporateExecutiveTemplate: React.FC<CorporateExecutiveTemplateProps> = ({
               <Text style={styles.boxTitle}>BILL TO</Text>
               <View style={styles.boxContent}>
                 <Text style={styles.clientName}>{invoice.client.name}</Text>
-                {invoice.client.address && (
-                  <Text style={styles.clientDetail}>{invoice.client.address}</Text>
-                )}
-                {invoice.client.email && (
-                  <Text style={styles.clientDetail}>{invoice.client.email}</Text>
-                )}
+                <Text style={styles.clientDetail}>{invoice.client.address}</Text>
+                <Text style={styles.clientDetail}>{invoice.client.email}</Text>
               </View>
             </View>
 
@@ -104,20 +92,14 @@ const CorporateExecutiveTemplate: React.FC<CorporateExecutiveTemplateProps> = ({
               <Text style={[styles.tableHeaderCell, styles.amountColumn]}>AMOUNT</Text>
             </View>
 
-            {invoice.items && invoice.items.length > 0 ? (
-              invoice.items.map((item, index) => (
-                <View key={index} style={[styles.tableRow, index % 2 === 0 ? styles.evenRow : {}]}>
-                  <Text style={[styles.tableCell, styles.descriptionColumn]}>{item.description}</Text>
-                  <Text style={[styles.tableCell, styles.quantityColumn]}>{item.quantity}</Text>
-                  <Text style={[styles.tableCell, styles.priceColumn]}>{formatCurrency(item.unitPrice)}</Text>
-                  <Text style={[styles.tableCell, styles.amountColumn]}>{formatCurrency(item.amount)}</Text>
-                </View>
-              ))
-            ) : (
-              <View style={styles.tableRow}>
-                <Text style={[styles.tableCell, styles.fullWidth]}>No items</Text>
+            {invoice.items.map((item, index) => (
+              <View key={index} style={[styles.tableRow, index % 2 === 0 ? styles.evenRow : {}]}>
+                <Text style={[styles.tableCell, styles.descriptionColumn]}>{item.description}</Text>
+                <Text style={[styles.tableCell, styles.quantityColumn]}>{item.quantity}</Text>
+                <Text style={[styles.tableCell, styles.priceColumn]}>{formatCurrency(item.unitPrice)}</Text>
+                <Text style={[styles.tableCell, styles.amountColumn]}>{formatCurrency(item.amount)}</Text>
               </View>
-            )}
+            ))}
           </View>
 
           {/* Executive Summary Box */}
@@ -130,12 +112,10 @@ const CorporateExecutiveTemplate: React.FC<CorporateExecutiveTemplateProps> = ({
                   <Text style={styles.summaryValue}>{formatCurrency(invoice.subtotal)}</Text>
                 </View>
 
-                {(Number(invoice.taxRate) || 0) > 0 && (
-                  <View style={styles.summaryRow}>
-                    <Text style={styles.summaryLabel}>Tax ({Number(invoice.taxRate) || 0}%):</Text>
-                    <Text style={styles.summaryValue}>{formatCurrency(invoice.taxAmount)}</Text>
-                  </View>
-                )}
+                <View style={styles.summaryRow}>
+                  <Text style={styles.summaryLabel}>Tax ({invoice.taxRate}%):</Text>
+                  <Text style={styles.summaryValue}>{formatCurrency(invoice.taxAmount)}</Text>
+                </View>
 
                 <View style={styles.summaryDivider} />
                 <View style={styles.totalRow}>
@@ -147,12 +127,10 @@ const CorporateExecutiveTemplate: React.FC<CorporateExecutiveTemplateProps> = ({
           </View>
 
           {/* Notes Section */}
-          {invoice.notes && (
             <View style={styles.notesContainer}>
               <Text style={styles.notesTitle}>TERMS & CONDITIONS</Text>
               <Text style={styles.notesText}>{invoice.notes}</Text>
             </View>
-          )}
 
           {/* Professional Footer */}
           <View style={styles.footer}>

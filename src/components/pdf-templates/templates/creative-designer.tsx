@@ -51,15 +51,9 @@ const CreativeDesignerTemplate: React.FC<CreativeDesignerTemplateProps> = ({ inv
               <View style={styles.headerRight}>
                 <Text style={styles.companyName}>{invoice.company.name}</Text>
                 <View style={styles.companyInfo}>
-                  {invoice.company.address && (
-                    <Text style={styles.companyDetail}>{invoice.company.address}</Text>
-                  )}
-                  {invoice.company.email && (
-                    <Text style={styles.companyDetail}>{invoice.company.email}</Text>
-                  )}
-                  {invoice.company.phone && (
-                    <Text style={styles.companyDetail}>{invoice.company.phone}</Text>
-                  )}
+                  <Text style={styles.companyDetail}>{invoice.company.address}</Text>
+                  <Text style={styles.companyDetail}>{invoice.company.email}</Text>
+                  <Text style={styles.companyDetail}>{invoice.company.phone}</Text>
                 </View>
               </View>
             </View>
@@ -72,12 +66,8 @@ const CreativeDesignerTemplate: React.FC<CreativeDesignerTemplateProps> = ({ inv
               <View style={styles.clientContent}>
                 <Text style={styles.clientLabel}>Billed To</Text>
                 <Text style={styles.clientName}>{invoice.client.name}</Text>
-                {invoice.client.address && (
-                  <Text style={styles.clientDetail}>{invoice.client.address}</Text>
-                )}
-                {invoice.client.email && (
-                  <Text style={styles.clientDetail}>{invoice.client.email}</Text>
-                )}
+                <Text style={styles.clientDetail}>{invoice.client.address}</Text>
+                <Text style={styles.clientDetail}>{invoice.client.email}</Text>
               </View>
             </View>
           </View>
@@ -91,20 +81,14 @@ const CreativeDesignerTemplate: React.FC<CreativeDesignerTemplateProps> = ({ inv
               <Text style={[styles.tableHeaderText, styles.amountColumn]}>Amount</Text>
             </View>
 
-            {invoice.items && invoice.items.length > 0 ? (
-              invoice.items.map((item, index) => (
-                <View key={index} style={[styles.tableRow, index % 2 === 1 ? styles.alternateRow : {}]}>
-                  <Text style={[styles.tableCell, styles.descriptionColumn]}>{item.description}</Text>
-                  <Text style={[styles.tableCell, styles.quantityColumn]}>{item.quantity}</Text>
-                  <Text style={[styles.tableCell, styles.rateColumn]}>{formatCurrency(item.unitPrice)}</Text>
-                  <Text style={[styles.tableCell, styles.amountColumn]}>{formatCurrency(item.amount)}</Text>
-                </View>
-              ))
-            ) : (
-              <View style={styles.tableRow}>
-                <Text style={[styles.tableCell, styles.fullWidth]}>No items</Text>
+            {invoice.items.map((item, index) => (
+              <View key={index} style={[styles.tableRow, index % 2 === 1 ? styles.alternateRow : {}]}>
+                <Text style={[styles.tableCell, styles.descriptionColumn]}>{item.description}</Text>
+                <Text style={[styles.tableCell, styles.quantityColumn]}>{item.quantity}</Text>
+                <Text style={[styles.tableCell, styles.rateColumn]}>{formatCurrency(item.unitPrice)}</Text>
+                <Text style={[styles.tableCell, styles.amountColumn]}>{formatCurrency(item.amount)}</Text>
               </View>
-            )}
+            ))}
           </View>
 
           {/* Creative Totals Section */}
@@ -117,12 +101,10 @@ const CreativeDesignerTemplate: React.FC<CreativeDesignerTemplateProps> = ({ inv
                   <Text style={styles.totalValue}>{formatCurrency(invoice.subtotal)}</Text>
                 </View>
 
-                {(Number(invoice.taxRate) || 0) > 0 && (
-                  <View style={styles.totalRow}>
-                    <Text style={styles.totalLabel}>Tax ({Number(invoice.taxRate) || 0}%)</Text>
-                    <Text style={styles.totalValue}>{formatCurrency(invoice.taxAmount)}</Text>
-                  </View>
-                )}
+                <View style={styles.totalRow}>
+                  <Text style={styles.totalLabel}>Tax ({invoice.taxRate}%)</Text>
+                  <Text style={styles.totalValue}>{formatCurrency(invoice.taxAmount)}</Text>
+                </View>
 
                 <View style={styles.grandTotalSection}>
                   <View style={styles.grandTotalAccent} />
@@ -136,7 +118,6 @@ const CreativeDesignerTemplate: React.FC<CreativeDesignerTemplateProps> = ({ inv
           </View>
 
           {/* Notes with Creative Styling */}
-          {invoice.notes && (
             <View style={styles.notesSection}>
               <View style={styles.notesCard}>
                 <View style={styles.notesAccent} />
@@ -146,7 +127,6 @@ const CreativeDesignerTemplate: React.FC<CreativeDesignerTemplateProps> = ({ inv
                 </View>
               </View>
             </View>
-          )}
 
           {/* Creative Footer */}
           <View style={styles.footer}>

@@ -5,17 +5,14 @@ import { useRouter } from 'next/navigation'
 import { useForm, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { format } from 'date-fns'
-import { CalendarIcon, Trash2, FileText, AlertCircle, ArrowLeft } from 'lucide-react'
-import Link from 'next/link'
+import { CalendarIcon, Trash2, FileText } from 'lucide-react'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
 import { Textarea } from '~/components/ui/textarea'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
-import { Alert, AlertDescription } from '~/components/ui/alert'
 import { PageContainer } from '~/components/layouts/page-container'
 import { PageHeader } from '~/components/layouts/page-header'
-import { LoadingState } from '~/components/ui/loading-state'
 import { ErrorState } from '~/components/ui/error-state'
 import { Calendar } from '~/components/ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover'
@@ -324,15 +321,7 @@ export default function NewInvoicePage() {
                             min="0"
                             max="100"
                             {...field}
-                            onChange={(e) => {
-                              const value = e.target.value;
-                              if (value === '' || value === null || value === undefined) {
-                                field.onChange(0);
-                              } else {
-                                const parsed = parseFloat(value);
-                                field.onChange(isNaN(parsed) ? 0 : parsed);
-                              }
-                            }}
+                            onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                           />
                         </FormControl>
                         <FormMessage />
@@ -408,10 +397,17 @@ export default function NewInvoicePage() {
                         />
                       </div>
                       <div className="col-span-2">
-                        <Label>Amount</Label>
-                        <div className="h-9 px-3 py-1 border rounded-md bg-muted flex items-center">
-                          ${((watchedValues.items?.[index]?.quantity || 0) * (watchedValues.items?.[index]?.unitPrice || 0)).toFixed(2)}
-                        </div>
+                        <FormItem>
+                          <FormLabel>Amount</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="string"
+                              onChange={() => {}}
+                              value={`$${((watchedValues.items?.[index]?.quantity || 0) * (watchedValues.items?.[index]?.unitPrice || 0)).toFixed(2)}`}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
                       </div>
                       <div className="col-span-1">
                         {fields.length > 1 && (
