@@ -34,7 +34,7 @@ import { cn } from '~/lib/utils'
 import { invoiceSchema } from '~/lib/schemas'
 import { TemplateSelector } from '~/components/pdf-templates/template-selector'
 import { PDFPreview } from '~/components/pdf-templates/pdf-preview'
-import { getCurrencyOptions } from '~/lib/currency'
+import { getCurrencyOptions, formatCurrency } from '~/lib/currency'
 
 
 interface Client {
@@ -438,7 +438,10 @@ export default function NewInvoicePage() {
                             <Input
                               type="string"
                               onChange={() => {}}
-                              value={`$${((watchedValues.items?.[index]?.quantity || 0) * (watchedValues.items?.[index]?.unitPrice || 0)).toFixed(2)}`}
+                              value={formatCurrency(
+                                (watchedValues.items?.[index]?.quantity || 0) * (watchedValues.items?.[index]?.unitPrice || 0),
+                                watchedValues.currency || 'USD'
+                              )}
                             />
                           </FormControl>
                           <FormMessage />

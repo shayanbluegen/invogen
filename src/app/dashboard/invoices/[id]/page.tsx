@@ -38,6 +38,7 @@ interface Invoice {
   taxRate: number
   taxAmount: number
   total: number
+  currency: string
   notes?: string
   theme?: string
   client: {
@@ -298,6 +299,7 @@ export default function InvoiceViewPage({
               number: invoice.number,
               issueDate: new Date(invoice.issueDate),
               dueDate: new Date(invoice.dueDate),
+              currency: invoice.currency || 'USD',
               company: invoice.company,
               client: invoice.client,
               items: invoice.items.map(item => ({

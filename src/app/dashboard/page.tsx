@@ -11,6 +11,7 @@ import {
   TrendingUp,
   TrendingDown
 } from 'lucide-react'
+import { formatCurrency } from '~/lib/currency'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
@@ -73,19 +74,33 @@ export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [defaultCurrency, setDefaultCurrency] = useState<string>('USD')
 
   const fetchData = async () => {
     try {
       setLoading(true)
       setError(null)
-      const response = await fetch('/api/dashboard')
 
-      if (!response.ok) {
-        throw new Error(`Failed to fetch dashboard data: ${response.status}`)
+      // Fetch both dashboard data and company info in parallel
+      const [dashboardResponse, companyResponse] = await Promise.all([
+        fetch('/api/dashboard'),
+        fetch('/api/company')
+      ])
+
+      if (!dashboardResponse.ok) {
+        throw new Error(`Failed to fetch dashboard data: ${dashboardResponse.status}`)
       }
 
-      const dashboardData = await response.json()
+      const dashboardData = await dashboardResponse.json()
       setData(dashboardData)
+
+      // Get company's default currency if available
+      if (companyResponse.ok) {
+        const companyData = await companyResponse.json()
+        if (companyData.defaultCurrency) {
+          setDefaultCurrency(companyData.defaultCurrency)
+        }
+      }
     } catch (error) {
       console.error('Failed to fetch dashboard data:', error)
       setError(error instanceof Error ? error.message : 'Failed to load dashboard data')
@@ -132,7 +147,7 @@ export default function DashboardPage() {
       <MetricsSection>
         <MetricCard
           title="Total Revenue (This Month)"
-          value={`$${data.metrics.totalRevenue.current.toLocaleString()}`}
+          value={formatCurrency(data.metrics.totalRevenue.current, defaultCurrency)}
           icon={<DollarSign className="h-4 w-4" />}
           trend={{
             value: data.metrics.totalRevenue.change,
