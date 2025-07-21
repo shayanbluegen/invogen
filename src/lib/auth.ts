@@ -58,7 +58,6 @@ export async function login(email: string, password: string): Promise<User | nul
 export async function logout() {
   const cookieStore = await cookies()
   cookieStore.delete('session')
-  redirect('/login')
 }
 
 export async function getCurrentUser(): Promise<User | null> {
