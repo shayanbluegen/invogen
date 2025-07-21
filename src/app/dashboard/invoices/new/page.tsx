@@ -121,7 +121,10 @@ export default function NewInvoicePage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          ...data,
+          templateId: selectedTemplate, // Include the selected template
+        }),
       })
 
       if (response.ok) {

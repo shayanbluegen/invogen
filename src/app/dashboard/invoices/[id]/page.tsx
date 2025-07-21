@@ -39,6 +39,7 @@ interface Invoice {
   taxAmount: number
   total: number
   notes?: string
+  theme?: string
   client: {
     id: string
     name: string
@@ -292,7 +293,7 @@ export default function InvoiceViewPage({
       <Card>
         <CardContent className="p-4">
           <PDFPreview
-            templateId="modern-minimalist"
+            templateId={invoice.theme || "modern-minimalist"}
             invoice={{
               number: invoice.number,
               issueDate: new Date(invoice.issueDate),

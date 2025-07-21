@@ -13,6 +13,7 @@ export const invoiceSchema = z.object({
   items: z.array(invoiceItemSchema).min(1, 'At least one item is required'),
   notes: z.string().optional(),
   taxRate: z.number().min(0).max(100),
+  templateId: z.string().optional(),
 })
 
 export type InvoiceFormData = z.infer<typeof invoiceSchema>

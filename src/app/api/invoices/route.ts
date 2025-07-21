@@ -99,6 +99,7 @@ export async function POST(request: NextRequest) {
       items,
       notes,
       taxRate = 0,
+      templateId = 'modern-minimalist', // Default template if not provided
     } = body
 
     // Validate required fields
@@ -152,6 +153,7 @@ export async function POST(request: NextRequest) {
         taxAmount,
         total,
         notes,
+        theme: templateId, // Save the selected template ID
         userId: user.id,
         companyId: company.id,
         clientId,
