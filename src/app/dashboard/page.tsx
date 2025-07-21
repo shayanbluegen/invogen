@@ -44,6 +44,7 @@ interface DashboardData {
     totalRevenue: {
       current: number
       change: number
+      currency: string
     }
     invoicesSent: {
       current: number
@@ -54,6 +55,7 @@ interface DashboardData {
       overdue: number
     }
   }
+  defaultCurrency: string
   recentInvoices: Array<{
     id: string
     number: string
@@ -94,8 +96,10 @@ export default function DashboardPage() {
       const dashboardData = await dashboardResponse.json()
       setData(dashboardData)
 
-      // Get company's default currency if available
-      if (companyResponse.ok) {
+      // Use currency from dashboard data (already converted) or fallback to company data
+      if (dashboardData.defaultCurrency) {
+        setDefaultCurrency(dashboardData.defaultCurrency)
+      } else if (companyResponse.ok) {
         const companyData = await companyResponse.json()
         if (companyData.defaultCurrency) {
           setDefaultCurrency(companyData.defaultCurrency)
@@ -146,13 +150,14 @@ export default function DashboardPage() {
       {/* Metrics Cards */}
       <MetricsSection>
         <MetricCard
-          title="Total Revenue (This Month)"
-          value={formatCurrency(data.metrics.totalRevenue.current, defaultCurrency)}
+          title={`Total Revenue (This Month)`}
+          value={formatCurrency(data.metrics.totalRevenue.current, data.metrics.totalRevenue.currency || defaultCurrency)}
           icon={<DollarSign className="h-4 w-4" />}
           trend={{
             value: data.metrics.totalRevenue.change,
             label: 'from last month'
           }}
+          description={data.metrics.totalRevenue.currency !== defaultCurrency ? `Converted to ${data.metrics.totalRevenue.currency || defaultCurrency}` : undefined}
         />
 
         <MetricCard

@@ -42,8 +42,7 @@ export const companySchema = z.object({
   }, 'Please enter a valid website URL (e.g., https://example.com)'),
   defaultCurrency: z.string()
     .length(3, 'Currency code must be 3 characters')
-    .refine(validateCurrencyCode, 'Invalid currency code')
-    .default('USD'),
+    .refine(validateCurrencyCode, 'Invalid currency code'),
 })
 
 export type InvoiceFormData = z.infer<typeof invoiceSchema>

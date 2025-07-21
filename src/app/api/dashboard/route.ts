@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getCurrentUser } from '~/lib/auth'
 import { prisma } from '~/lib/prisma'
+import { convertMultipleCurrencies } from '~/lib/currency'
 
 export async function GET() {
   try {
@@ -13,7 +14,14 @@ export async function GET() {
     const currentMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1)
     const lastMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1)
 
-    // Get current month revenue
+    // Get user's company to determine default currency
+    const company = await prisma.company.findUnique({
+      where: { userId: user.id },
+      select: { defaultCurrency: true },
+    })
+    const defaultCurrency = company?.defaultCurrency || 'USD'
+
+    // Get current month revenue with currency information
     const currentMonthInvoices = await prisma.invoice.findMany({
       where: {
         userId: user.id,
@@ -24,15 +32,22 @@ export async function GET() {
       },
       select: {
         total: true,
+        currency: true,
       },
     })
 
-    const currentMonthRevenue = currentMonthInvoices.reduce(
-      (sum, invoice) => sum + Number(invoice.total),
-      0
+    // Convert all amounts to default currency
+    const currentMonthAmounts = currentMonthInvoices.map(invoice => ({
+      amount: Number(invoice.total),
+      currency: invoice.currency || 'USD',
+    }))
+
+    const currentMonthRevenue = await convertMultipleCurrencies(
+      currentMonthAmounts,
+      defaultCurrency
     )
 
-    // Get last month revenue for comparison
+    // Get last month revenue for comparison with currency information
     const lastMonthInvoices = await prisma.invoice.findMany({
       where: {
         userId: user.id,
@@ -44,12 +59,19 @@ export async function GET() {
       },
       select: {
         total: true,
+        currency: true,
       },
     })
 
-    const lastMonthRevenue = lastMonthInvoices.reduce(
-      (sum, invoice) => sum + Number(invoice.total),
-      0
+    // Convert all amounts to default currency
+    const lastMonthAmounts = lastMonthInvoices.map(invoice => ({
+      amount: Number(invoice.total),
+      currency: invoice.currency || 'USD',
+    }))
+
+    const lastMonthRevenue = await convertMultipleCurrencies(
+      lastMonthAmounts,
+      defaultCurrency
     )
 
     // Calculate percentage change
@@ -123,6 +145,7 @@ export async function GET() {
         totalRevenue: {
           current: currentMonthRevenue,
           change: revenueChange,
+          currency: defaultCurrency,
         },
         invoicesSent: {
           current: invoicesSentThisMonth,
@@ -133,6 +156,7 @@ export async function GET() {
           overdue: overdueInvoices,
         },
       },
+      defaultCurrency,
       recentInvoices: recentInvoices.map(invoice => ({
         id: invoice.id,
         number: invoice.number || `INV-${invoice.id.slice(-6)}`,

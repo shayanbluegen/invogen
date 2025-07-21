@@ -275,7 +275,144 @@ export function parseCurrencyAmount(value: string): number {
  * Validate currency code
  */
 export function validateCurrencyCode(code: string): boolean {
-  return typeof code === 'string' && 
-         code.length === 3 && 
+  return typeof code === 'string' &&
+         code.length === 3 &&
          isSupportedCurrency(code)
+}
+
+// Exchange rate interfaces and types
+export interface ExchangeRate {
+  from: string
+  to: string
+  rate: number
+  timestamp: number
+}
+
+export interface ExchangeRateResponse {
+  success: boolean
+  rates: Record<string, number>
+  base: string
+  date: string
+}
+
+// Cache for exchange rates (in-memory, could be moved to Redis in production)
+const exchangeRateCache = new Map<string, ExchangeRate>()
+const CACHE_DURATION = 60 * 60 * 1000 // 1 hour in milliseconds
+
+/**
+ * Get exchange rate from cache or fetch from API
+ */
+async function getExchangeRate(from: string, to: string): Promise<number> {
+  // If same currency, return 1
+  if (from === to) {
+    return 1
+  }
+
+  const cacheKey = `${from}-${to}`
+  const cached = exchangeRateCache.get(cacheKey)
+
+  // Check if cached rate is still valid
+  if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+    return cached.rate
+  }
+
+  try {
+    // Use exchangerate-api.com (free tier: 1500 requests/month)
+    const response = await fetch(
+      `https://api.exchangerate-api.com/v4/latest/${from}`,
+      {
+        headers: {
+          'Accept': 'application/json',
+        },
+      }
+    )
+
+    if (!response.ok) {
+      throw new Error(`Exchange rate API error: ${response.status}`)
+    }
+
+    const data = await response.json()
+
+    // Check if the response has the expected structure
+    if (!data.rates || typeof data.rates !== 'object') {
+      throw new Error(`Invalid API response structure`)
+    }
+
+    if (!data.rates[to]) {
+      throw new Error(`Exchange rate not found for ${from} to ${to}`)
+    }
+
+    const rate = data.rates[to]
+
+    // Cache the rate
+    exchangeRateCache.set(cacheKey, {
+      from,
+      to,
+      rate,
+      timestamp: Date.now(),
+    })
+
+    return rate
+  } catch (error) {
+    console.error('Failed to fetch exchange rate:', error)
+
+    // Fallback: try reverse rate if available in cache
+    const reverseCacheKey = `${to}-${from}`
+    const reverseCached = exchangeRateCache.get(reverseCacheKey)
+
+    if (reverseCached && Date.now() - reverseCached.timestamp < CACHE_DURATION) {
+      const reverseRate = 1 / reverseCached.rate
+      // Cache the calculated rate
+      exchangeRateCache.set(cacheKey, {
+        from,
+        to,
+        rate: reverseRate,
+        timestamp: Date.now(),
+      })
+      return reverseRate
+    }
+
+    // Ultimate fallback: return 1 (no conversion)
+    console.warn(`Using fallback rate of 1 for ${from} to ${to}`)
+    return 1
+  }
+}
+
+/**
+ * Convert amount from one currency to another
+ */
+export async function convertCurrency(
+  amount: number,
+  fromCurrency: string,
+  toCurrency: string
+): Promise<number> {
+  if (fromCurrency === toCurrency) {
+    return amount
+  }
+
+  const rate = await getExchangeRate(fromCurrency, toCurrency)
+  return amount * rate
+}
+
+/**
+ * Convert multiple amounts with their currencies to a target currency
+ */
+export async function convertMultipleCurrencies(
+  amounts: Array<{ amount: number; currency: string }>,
+  targetCurrency: string
+): Promise<number> {
+  const conversions = await Promise.all(
+    amounts.map(async ({ amount, currency }) => {
+      return await convertCurrency(amount, currency, targetCurrency)
+    })
+  )
+
+  return conversions.reduce((sum, convertedAmount) => sum + convertedAmount, 0)
+}
+
+/**
+ * Clear exchange rate cache (useful for testing or manual refresh)
+ */
+export function clearExchangeRateCache(): void {
+  exchangeRateCache.clear()
 }
