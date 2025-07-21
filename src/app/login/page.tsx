@@ -126,14 +126,6 @@ export default function LoginPage() {
             </Form>
           </CardContent>
         </Card>
-
-        <div className="text-center text-sm text-muted-foreground space-y-2">
-          <p className="font-medium">Demo credentials:</p>
-          <div className="space-y-1">
-            <p>Email: john@example.com</p>
-            <p>Password: password123</p>
-          </div>
-        </div>
       </div>
     </div>
   )
