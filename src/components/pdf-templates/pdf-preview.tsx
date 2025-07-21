@@ -107,12 +107,8 @@ export const PDFPreview: React.FC<PDFPreviewProps> = ({
 
   // Create a stable key for the PDFViewer based on invoice content
   const pdfViewerKey = useMemo(() => {
-    const itemsLength = invoice.items?.length || 0;
-    const itemsHash = invoice.items?.map((item, idx) => 
-      `${idx}-${item.description}-${item.quantity}-${item.unitPrice}`
-    ).join('|') || '';
-    return `${templateId}-${itemsLength}-${itemsHash}`;
-  }, [templateId, invoice.items]);
+    return `${templateId}-${JSON.stringify(invoice)}`;
+  }, [templateId, invoice]);
 
   // Create the PDF document component
   const PDFDocument = useMemo(() => {

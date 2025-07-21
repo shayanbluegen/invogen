@@ -100,14 +100,20 @@ const ClassicProfessionalTemplate: React.FC<ClassicProfessionalTemplateProps> = 
               <Text style={[styles.tableHeaderCell, styles.amountColumn]}>AMOUNT</Text>
             </View>
 
-            {invoice.items.map((item, index) => (
-              <View key={index} style={styles.tableRow}>
-                <Text style={[styles.tableCell, styles.descriptionColumn]}>{item.description}</Text>
-                <Text style={[styles.tableCell, styles.quantityColumn]}>{item.quantity}</Text>
-                <Text style={[styles.tableCell, styles.priceColumn]}>{formatCurrency(item.unitPrice)}</Text>
-                <Text style={[styles.tableCell, styles.amountColumn]}>{formatCurrency(item.amount)}</Text>
+            {invoice.items && invoice.items.length > 0 ? (
+              invoice.items.map((item, index) => (
+                <View key={index} style={styles.tableRow}>
+                  <Text style={[styles.tableCell, styles.descriptionColumn]}>{item.description}</Text>
+                  <Text style={[styles.tableCell, styles.quantityColumn]}>{item.quantity}</Text>
+                  <Text style={[styles.tableCell, styles.priceColumn]}>{formatCurrency(item.unitPrice)}</Text>
+                  <Text style={[styles.tableCell, styles.amountColumn]}>{formatCurrency(item.amount)}</Text>
+                </View>
+              ))
+            ) : (
+              <View style={styles.tableRow}>
+                <Text style={[styles.tableCell, styles.fullWidth]}>No items</Text>
               </View>
-            ))}
+            )}
           </View>
 
           {/* Classic Totals Section */}
@@ -118,10 +124,12 @@ const ClassicProfessionalTemplate: React.FC<ClassicProfessionalTemplateProps> = 
                 <Text style={styles.totalValue}>{formatCurrency(invoice.subtotal)}</Text>
               </View>
 
-              <View style={styles.totalRow}>
-                <Text style={styles.totalLabel}>Tax ({invoice.taxRate}%):</Text>
-                <Text style={styles.totalValue}>{formatCurrency(invoice.taxAmount)}</Text>
-              </View>
+              {(Number(invoice.taxRate) || 0) > 0 && (
+                <View style={styles.totalRow}>
+                  <Text style={styles.totalLabel}>Tax ({Number(invoice.taxRate) || 0}%):</Text>
+                  <Text style={styles.totalValue}>{formatCurrency(invoice.taxAmount)}</Text>
+                </View>
+              )}
 
               <View style={styles.grandTotalDivider} />
               <View style={styles.grandTotalRow}>
